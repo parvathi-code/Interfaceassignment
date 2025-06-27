@@ -1,65 +1,105 @@
-package inheritance;
+package tcassignment;
 
+import java.util.Scanner;
 
-class Parent {
-    static String role = "Parent"; // inheritable so it is inherited
-    static String s = "inheritable";  // inherited 
-    
-    static void display() {
-    	System.out.println("static method from parent");
-    }
-    static void show() {
-    	System.out.println("show from parent");
+interface Sortable {
+    void sort(int[] arr);
+}
+class BubbleSort implements Sortable {
+    public void sort(int[] arr) {
+        int n = arr.length;
+        for (int i = 0; i < n - 1; i++)
+            for (int j = 0; j < n - i - 1; j++)
+                if (arr[j] > arr[j + 1]) {
+                    int temp = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = temp;
+                }
     }
 }
-
-class Child extends Parent {
-	/*
-	 * here i am using role the same name so idhunala parent ooda role vandhu kanama poirum so that static members are inherited but
-	 * hidden 
-	 */
-    String role = "Child"; 
-    static void show() {
-    	System.out.println("show from child");
+class QuickSort implements Sortable {
+    public void sort(int[] arr) {
+        quickSort(arr, 0, arr.length - 1);
     }
-    
+
+    private void quickSort(int[] arr, int low, int high) {
+        if (low < high) {
+            int pi = partition(arr, low, high);
+            quickSort(arr, low, pi - 1);
+            quickSort(arr, pi + 1, high);
+        }
+    }
+
+    private int partition(int[] arr, int low, int high) {
+        int pivot = arr[high], i = low - 1;
+        for (int j = low; j < high; j++) {
+            if (arr[j] <= pivot) {
+                i++;
+                int t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+            }
+        }
+        int t = arr[i + 1]; arr[i + 1] = arr[high]; arr[high] = t;
+        return i + 1;
+    }
+}
+class MergeSort implements Sortable {
+    public void sort(int[] arr) {
+        mergeSort(arr, 0, arr.length - 1);
+    }
+
+    private void mergeSort(int[] arr, int l, int r) {
+        if (l < r) {
+            int m = (l + r) / 2;
+            mergeSort(arr, l, m);
+            mergeSort(arr, m + 1, r);
+            merge(arr, l, m, r);
+        }
+    }
+
+    private void merge(int[] arr, int l, int m, int r) {
+        int[] left = java.util.Arrays.copyOfRange(arr, l, m + 1);
+        int[] right = java.util.Arrays.copyOfRange(arr, m + 1, r + 1);
+        int i = 0, j = 0, k = l;
+        while (i < left.length && j < right.length)
+            arr[k++] = left[i] <= right[j] ? left[i++] : right[j++];
+        while (i < left.length) arr[k++] = left[i++];
+        while (j < right.length) arr[k++] = right[j++];
+    }
 }
 
 public class Main {
     public static void main(String[] args) {
-    	Parent fullParent = new Parent();
-    	Parent polymorphic = new Child();
-        Child fullChild = new Child();
+        Scanner sc = new Scanner(System.in);
 
-        
-        
-        System.out.println("polymorphic object : "+ polymorphic.role);  // parent 
-        System.out.println("Child object: " + fullChild.role); // child
-        /*
-         * following lines proved static members are inheritable when we use same name for method and variable
-         *  it automatically hidden
-         * but if we use another name clearly we can conclude that static members are inherited
-         */
-        System.out.println("polymorphic object : "+ polymorphic.s);  // inheritable
-        System.out.println("Child object: " + fullChild.s); // inheritable
-        polymorphic.display();  // inheritable
-        fullChild.display(); // inheritable
-        polymorphic.show();// here calling parent method how????? following point is the reason
-        /*
-         * In Java, when you access a static field (like a static variable or static method), 
-         * Java looks at the reference type (left side) — not the object it actually points to.
-         * It resolves the field at compile time, based on what the reference is declared as, not what it's pointing to.
-         * If a child class has an instance field with the same name as a parent static field, then:
+        System.out.print("Enter number of elements: ");
+        int n = sc.nextInt();
 
-            If you use Parent reference, you get Parent’s static field
+        int[] arr = new int[n];
+        System.out.println("Enter " + n + " integers:");
+        for (int i = 0; i < n; i++)
+            arr[i] = sc.nextInt();
 
-		    If you use Child reference, you get Child’s instance field
+        System.out.println("\nChoose Sorting Algorithm:");
+        System.out.println("1. Bubble Sort");
+        System.out.println("2. Quick Sort");
+        System.out.println("3. Merge Sort");
+        System.out.print("Your choice: ");
+        int choice = sc.nextInt();
 
-			This is called variable hiding, and it’s a little different from overriding.
+        Sortable sorter;
+        switch (choice) {
+            case 1: sorter = new BubbleSort(); break;
+            case 2: sorter = new QuickSort(); break;
+            case 3: sorter = new MergeSort(); break;
+            default:
+                System.out.println("Invalid choice.");
+                return;
+        }
 
+        sorter.sort(arr);
 
-         */
-        
+        System.out.println("\nSorted Array:");
+        for (int val : arr)
+            System.out.print(val + " ");
     }
 }
-
